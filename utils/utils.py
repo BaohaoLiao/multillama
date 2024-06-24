@@ -390,7 +390,10 @@ def load_model(data_args, model_args, training_args, tokenizer, logger):
             model = get_peft_model(model, config)
         print_trainable_parameters(model)
 
-    if "llama" in model_args.model_name_or_path:
+    if "Llama-3" in model_args.model_name_or_path:
+        model.config.pad_token_id = tokenizer.pad_token_id
+        model.generation_config.pad_token_id = tokenizer.pad_token_id
+    elif "llama" in model_args.model_name_or_path:
         model.config.pad_token_id = 0
         model.config.bos_token_id = 1
         model.config.eos_token_id = 2
@@ -431,7 +434,13 @@ def load_tokenizer(data_args, model_args, training_args, logger):
     if model_args.tokenizer_name:
         tokenizer = AutoTokenizer.from_pretrained(model_args.tokenizer_name, **tokenizer_kwargs)
     elif model_args.model_name_or_path:
-        if "llama" in model_args.model_name_or_path or "BigTranslate" in model_args.model_name_or_path or "ALMA" in model_args.model_name_or_path:
+        if "Llama-3" in model_args.model_name_or_path:
+            print("load llama-3 tokenizer")
+            tokenizer = AutoTokenizer.from_pretrained(
+                model_args.model_name_or_path,
+                **tokenizer_kwargs,
+            )
+        elif "llama" in model_args.model_name_or_path or "BigTranslate" in model_args.model_name_or_path or "ALMA" in model_args.model_name_or_path:
             tokenizer = LlamaTokenizer.from_pretrained(
                 model_args.model_name_or_path, 
                 **tokenizer_kwargs, 
@@ -447,7 +456,9 @@ def load_tokenizer(data_args, model_args, training_args, logger):
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
-    if "llama" in model_args.model_name_or_path:
+    if "Llama-3" in model_args.model_name_or_path:
+        tokenizer.add_special_tokens(dict(pad_token="<|padding|>"))
+    elif "llama" in model_args.model_name_or_path:
         tokenizer.pad_token_id = 0
         tokenizer.bos_token_id = 1
         tokenizer.eos_token_id = 2
@@ -623,7 +634,7 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
     if data_args.mmt_data_path or data_args.mono_data_path:
         column_names_mmt = ["translation"]
     if data_args.oscar_data_path:
-        column_name_oscar = ["id", "meta", "text"]
+        column_name_oscar = ["id", "text"]
 
     # since this will be pickled to avoid _LazyModule error in Hasher force logger loading before tokenize_function
     tok_logger = transformers.utils.logging.get_logger("transformers.tokenization_utils_base")
