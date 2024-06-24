@@ -694,6 +694,7 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
             processed_datasets.append(train_dataset)
         if data_args.oscar_data_path:
             train_dataset = train_raw_data
+            """
             with training_args.main_process_first(desc="train dataset map pre-processing"):
                 train_dataset = train_dataset.map(
                     tokenize_function_train_oscar_mono,
@@ -701,6 +702,8 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
                     remove_columns=column_name_oscar,
                     desc="Running tokenizer on monolingual OSCAR dataset",
                 )
+            """
+            train_dataset.set_transform(tokenize_function_train_oscar_mono)
             processed_datasets.append(train_dataset)
         train_datasets = concatenate_datasets(processed_datasets)
         train_datasets = train_datasets.shuffle(seed=training_args.seed)
