@@ -124,7 +124,8 @@ def main():
                 train_raw_data.append(
                     load_dataset(
                         "parquet",
-                        data_files=[os.path.join(data_args.oscar_data_path, lg, lg+".parquet")]
+                        data_files=[os.path.join(data_args.oscar_data_path, lg, lg+".parquet")],
+                        streaming=data_args.streaming,
                     )['train']
                 )
             else:
@@ -132,7 +133,8 @@ def main():
                 train_raw_data.append(
                     load_dataset(
                         "parquet",
-                        data_files=data_files
+                        data_files=data_files,
+                        streaming=data_args.streaming,
                     )['train']
                 )
         train_raw_data = interleave_datasets(train_raw_data, probabilities=interleave_probs, seed=training_args.seed, stopping_strategy="all_exhausted")
