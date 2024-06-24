@@ -125,6 +125,8 @@ def main():
             else:
                 data_files = [os.path.join(data_args.oscar_data_path, lg, lg+f"{i+1}.parquet") for i in range(8)]
 
+            print(data_files)
+
             train_raw_data.append(
                 load_dataset(
                     "parquet",
