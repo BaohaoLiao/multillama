@@ -42,7 +42,6 @@ from collections import defaultdict
 from transformers.trainer_callback import TrainerCallback
 from datasets import concatenate_datasets
 from tqdm import tqdm
-from trl import AutoModelForCausalLMWithValueHead
 
 class SavePeftModelCallback(TrainerCallback):
     def on_save(
