@@ -136,6 +136,8 @@ def main():
 
         train_raw_data = interleave_datasets(train_raw_data, probabilities=interleave_probs, seed=training_args.seed, stopping_strategy="all_exhausted")
     
+    print(list(train_raw_data.take(20)))
+
     # load tokenizer
     set_seed(training_args.seed)
     tokenizer = load_tokenizer(data_args, model_args, training_args, logger)
