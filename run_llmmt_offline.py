@@ -124,7 +124,6 @@ def main():
                 data_files=os.path.join(data_args.oscar_data_path, lg, lg+".parquet")
             else:
                 data_files = [os.path.join(data_args.oscar_data_path, lg, lg+f"{i+1}.parquet") for i in range(8)]
-            print(data_files)
 
             train_raw_data.append(
                 load_dataset(
@@ -135,8 +134,6 @@ def main():
             )
 
         train_raw_data = interleave_datasets(train_raw_data, probabilities=interleave_probs, seed=training_args.seed, stopping_strategy="all_exhausted")
-    
-    print(list(train_raw_data.take(20)))
 
     # load tokenizer
     set_seed(training_args.seed)
