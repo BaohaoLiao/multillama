@@ -389,12 +389,11 @@ def load_model(data_args, model_args, training_args, tokenizer, logger):
             model = get_peft_model(model, config)
         print_trainable_parameters(model)
 
-    """
+
     if "Llama-3" in model_args.model_name_or_path:
         model.config.pad_token_id = tokenizer.pad_token_id
         model.generation_config.pad_token_id = tokenizer.pad_token_id
-    """
-    if "llama" in model_args.model_name_or_path:
+    elif "llama" in model_args.model_name_or_path:
         model.config.pad_token_id = 0
         model.config.bos_token_id = 1
         model.config.eos_token_id = 2
@@ -457,11 +456,10 @@ def load_tokenizer(data_args, model_args, training_args, logger):
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
-    """
+
     if "Llama-3" in model_args.model_name_or_path:
         tokenizer.add_special_tokens(dict(pad_token="<|padding|>"))
-    """
-    if "llama" in model_args.model_name_or_path:
+    elif "llama" in model_args.model_name_or_path:
         tokenizer.pad_token_id = 0
         tokenizer.bos_token_id = 1
         tokenizer.eos_token_id = 2
