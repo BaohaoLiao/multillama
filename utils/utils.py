@@ -699,7 +699,7 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
                     tokenize_function_train_oscar_mono,
                     batched=True,
                     remove_columns=column_name_oscar,
-                    num_proc=data_args.preprocessing_num_workers,
+                    #num_proc=data_args.preprocessing_num_workers,
                     desc="Running tokenizer on monolingual OSCAR dataset",
                 )
             #train_dataset.set_transform(tokenize_function_train_oscar_mono)
