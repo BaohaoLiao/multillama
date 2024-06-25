@@ -304,10 +304,10 @@ def clean_outputstring(output, key_word, logger, split_idx):
 
 def load_model(data_args, model_args, training_args, tokenizer, logger):
     # Detecting last checkpoint.
-    last_checkpoint = None
-    if os.path.isdir(training_args.output_dir) and (training_args.do_train or training_args.do_predict ) and not training_args.overwrite_output_dir:
-        #last_checkpoint = training_args.output_dir
-        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+    #last_checkpoint = None
+    #if os.path.isdir(training_args.output_dir) and (training_args.do_train or training_args.do_predict ) and not training_args.overwrite_output_dir:
+    #last_checkpoint = training_args.output_dir
+    #    last_checkpoint = get_last_checkpoint(training_args.output_dir)
 
     config_kwargs = {
         "cache_dir": model_args.cache_dir,
@@ -341,13 +341,15 @@ def load_model(data_args, model_args, training_args, tokenizer, logger):
         )
         if model_args.multi_gpu_one_model and not training_args.do_train:
             model = AutoModelForCausalLM.from_pretrained(
-                model_args.model_name_or_path if last_checkpoint is None else last_checkpoint,
+                #model_args.model_name_or_path if last_checkpoint is None else last_checkpoint,
+                model_args.model_name_or_path,
                 device_map="auto",
                 low_cpu_mem_usage=model_args.low_cpu_mem_usage,
             )
         else:
             model = AutoModelForCausalLM.from_pretrained(
-                model_args.model_name_or_path if last_checkpoint is None else last_checkpoint,
+                #model_args.model_name_or_path if last_checkpoint is None else last_checkpoint,
+                model_args.model_name_or_path,
                 from_tf=bool(".ckpt" in model_args.model_name_or_path),
                 config=config,
                 cache_dir=model_args.cache_dir,

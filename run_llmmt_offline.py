@@ -94,6 +94,21 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
+    # Detecting last checkpoint.
+    last_checkpoint = None
+    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
+            raise ValueError(
+                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                "Use --overwrite_output_dir to overcome."
+            )
+        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+            logger.info(
+                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
+                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
+            )
+
     # Get the datasets
     pairs = set(data_args.language_pairs.split(","))
     train_raw_data, valid_raw_data, test_raw_data = None, None, None
@@ -176,14 +191,15 @@ def main():
         checkpoint = None
         if training_args.resume_from_checkpoint is not None:
             checkpoint = training_args.resume_from_checkpoint
-
+        elif last_checkpoint is not None:
+            checkpoint = last_checkpoint
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
-
         trainer.save_state()
         if model_args.use_peft:
             model.save_pretrained(training_args.output_dir) 
         else:
             trainer.save_model()  # Saves the tokenizer too for easy upload
+            
     # Prediction
     if training_args.do_predict:
         trainer.args.prediction_loss_only = False
