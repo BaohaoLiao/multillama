@@ -124,6 +124,10 @@ class ModelArguments:
             )
         },
     )
+    attn_implementation: str = field(
+        default="sdpa",
+        metadata={"help": "Choose from [eager, sdpa, flash_attention_2]"},
+    )
     def __post_init__(self):
         if self.config_overrides is not None and (self.config_name is not None or self.model_name_or_path is not None):
             raise ValueError(

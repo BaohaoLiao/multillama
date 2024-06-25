@@ -356,6 +356,7 @@ def load_model(data_args, model_args, training_args, tokenizer, logger):
                 torch_dtype=torch_dtype,
                 low_cpu_mem_usage=model_args.low_cpu_mem_usage,
                 trust_remote_code=True,
+                attn_implementation=model_args.attn_implementation,
             )
         model.generation_config.max_length = data_args.max_source_length + data_args.max_new_tokens
         model.generation_config.use_cache = True
