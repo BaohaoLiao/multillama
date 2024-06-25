@@ -306,8 +306,8 @@ def load_model(data_args, model_args, training_args, tokenizer, logger):
     # Detecting last checkpoint.
     last_checkpoint = None
     if os.path.isdir(training_args.output_dir) and (training_args.do_train or training_args.do_predict ) and not training_args.overwrite_output_dir:
-        last_checkpoint = training_args.output_dir
-        # last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        #last_checkpoint = training_args.output_dir
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
 
     config_kwargs = {
         "cache_dir": model_args.cache_dir,
