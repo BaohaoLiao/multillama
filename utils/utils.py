@@ -111,7 +111,7 @@ SUFFIX = {
 
 
 
-def load_mmt_dataset(pairs, data_args, model_args, training_args, logger):
+def load_mmt_dataset_old(pairs, data_args, model_args, training_args, logger):
     seen_files =set([])
     train_raw_data, valid_raw_data, test_raw_data = {}, {}, {}
     for pair in pairs:
@@ -165,6 +165,57 @@ def load_mmt_dataset(pairs, data_args, model_args, training_args, logger):
                     use_auth_token=True if model_args.use_auth_token else None,
                     )
                 test_raw_data[f"{src_lang}-{tgt_lang}"] = test_raw_data[f"{src_lang}-{tgt_lang}"].rename_column("translation", f"{src_lang}-{tgt_lang}")
+
+        seen_files.add(train_file)
+        seen_files.add(valid_file)
+        seen_files.add(test_file)
+
+
+def load_mmt_dataset(pairs, data_args, model_args, training_args, logger):
+    seen_files =set([])
+    train_raw_data, valid_raw_data, test_raw_data = {}, {}, {}
+    for pair in pairs:            
+        train_file = os.path.join(data_args.mmt_data_path, f"train.{pair}.json")
+        valid_file = os.path.join(data_args.mmt_data_path, f"valid.{pair}.json")
+        test_file = os.path.join(data_args.mmt_data_path, f"test.{pair}.json")
+        
+        if not os.path.isfile(train_file):
+            logger.info(f"Warning: training file {train_file} does not exist!")
+        elif train_file not in seen_files and training_args.do_train:
+            train_raw_data[f"{pair}"] = load_dataset(
+                "json",
+                data_files={"train": train_file},
+                cache_dir=model_args.cache_dir,
+                use_auth_token=True if model_args.use_auth_token else None,
+                streaming=data_args.streaming,
+                )
+        if not os.path.isfile(valid_file):
+            logger.info(f"Warning: validation file {valid_file} does not exist!")
+        elif valid_file not in seen_files and training_args.do_eval:
+            valid_raw_data[f"{pair}"] = load_dataset(
+                "json",
+                data_files={"validation": valid_file},
+                cache_dir=model_args.cache_dir,
+                use_auth_token=True if model_args.use_auth_token else None,
+                )
+        if not os.path.isfile(test_file):
+            logger.info(f"Warning: test file {test_file} does not exist!")
+        elif test_file not in seen_files and training_args.do_predict:
+            if data_args.override_test_data_path:
+                test_raw_data[f"{pair}"] = load_dataset(
+                    data_args.override_test_data_path,
+                    f"{pair}",
+                    cache_dir=model_args.cache_dir,
+                    use_auth_token=True if model_args.use_auth_token else None,
+                    )
+            else:
+                test_raw_data[f"{pair}"] = load_dataset(
+                    "json",
+                    data_files={"test": test_file},
+                    cache_dir=model_args.cache_dir,
+                    use_auth_token=True if model_args.use_auth_token else None,
+                    )
+                test_raw_data[f"{pair}"] = test_raw_data[f"{pair}"].rename_column("translation", f"{pair}")
 
         seen_files.add(train_file)
         seen_files.add(valid_file)
