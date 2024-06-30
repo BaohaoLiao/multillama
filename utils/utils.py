@@ -726,8 +726,8 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
                             batched=True,
                             num_proc=data_args.preprocessing_num_workers,
                             remove_columns=column_names_mmt,
-                            cache_file_name=f"{os.environ['HF_DATASETS_CACHE']}/{model_args.model_name_or_path.split('/')[-1]}-train-mmt-{lg_pair}-{data_args.language_pairs}-{data_args.suffix}",
-                            load_from_cache_file=not data_args.overwrite_cache,
+                            #cache_file_name=f"{os.environ['HF_DATASETS_CACHE']}/{model_args.model_name_or_path.split('/')[-1]}-train-mmt-{lg_pair}-{data_args.language_pairs}-{data_args.suffix}",
+                            load_from_cache_file=False, #not data_args.overwrite_cache,
                             desc="Running tokenizer on MMT train dataset",
                         )
                     else:
@@ -796,8 +796,8 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
                     batched=True,
                     num_proc=data_args.preprocessing_num_workers,
                     remove_columns=column_names_mmt,
-                    cache_file_name=f"{os.environ['HF_DATASETS_CACHE']}/{model_args.model_name_or_path.split('/')[-1]}-valid-mmt-{lg_pair}-{data_args.language_pairs}-{data_args.suffix}",
-                    load_from_cache_file=not data_args.overwrite_cache,
+                    ##cache_file_name=f"{os.environ['HF_DATASETS_CACHE']}/{model_args.model_name_or_path.split('/')[-1]}-valid-mmt-{lg_pair}-{data_args.language_pairs}-{data_args.suffix}",
+                    load_from_cache_file=False, #not data_args.overwrite_cache,
                     desc="Running tokenizer valid dataset",
                 )
             processed_datasets.append(eval_dataset)
@@ -817,8 +817,8 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
                     batched=True,
                     num_proc=data_args.preprocessing_num_workers,
                     remove_columns=[lg_pair],
-                    cache_file_name=f"{os.environ['HF_DATASETS_CACHE']}/{model_args.model_name_or_path.split('/')[-1]}-test-mmt-{lg_pair}-{data_args.language_pairs}-{data_args.suffix}",
-                    load_from_cache_file=not data_args.overwrite_cache,
+                    #cache_file_name=f"{os.environ['HF_DATASETS_CACHE']}/{model_args.model_name_or_path.split('/')[-1]}-test-mmt-{lg_pair}-{data_args.language_pairs}-{data_args.suffix}",
+                    load_from_cache_file=False, #not data_args.overwrite_cache,
                     desc="Running tokenizer test dataset",
                 )
             test_datasets[lg_pair] = test_dataset
