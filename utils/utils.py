@@ -715,7 +715,7 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
         processed_datasets = []
         if data_args.mmt_data_path:
             for lg_pair, sub_raw_data in train_raw_data.items():
-                print(lg_pair, len(sub_raw_data["train"]))
+                print("##########", lg_pair, len(sub_raw_data["train"]))
                 train_dataset = sub_raw_data["train"]
                 if data_args.max_train_samples is not None:
                     max_train_samples = min(len(train_dataset), data_args.max_train_samples)
