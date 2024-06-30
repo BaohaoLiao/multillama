@@ -302,7 +302,7 @@ def get_prompt(source_lang, target_lang, ex, shots_eval_dict={}, use_target_lang
         prefix = PREFIX[target_lang]
         suffix = SUFFIX[target_lang]
     else:
-        prefix = f"Translate this from {src_fullname} to {tgt_fullname}:\n{src_fullname}: "
+        prefix = f"You are an expert Translator. Translate this from {src_fullname} to {tgt_fullname}:\n{src_fullname}: "
         suffix = f"\n{tgt_fullname}:"
     prompt = prefix + ex[source_lang] + suffix
     return prompt
