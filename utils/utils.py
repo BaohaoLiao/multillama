@@ -184,22 +184,26 @@ def load_mmt_dataset(pairs, data_args, model_args, training_args, logger):
         if not os.path.isfile(train_file):
             logger.info(f"Warning: training file {train_file} does not exist!")
         elif train_file not in seen_files and training_args.do_train:
-            train_raw_data[f"{pair}"] = load_dataset(
+            train_raw_data[pair] = load_dataset(
                 "json",
                 data_files={"train": train_file},
                 cache_dir=model_args.cache_dir,
                 use_auth_token=True if model_args.use_auth_token else None,
                 streaming=data_args.streaming,
                 )
+            new_column = [pair] * len(train_raw_data[pair]["train"])
+            train_raw_data[pair]["train"] = train_raw_data[pair]["train"].add_column("lang_pair", new_column)
         if not os.path.isfile(valid_file):
             logger.info(f"Warning: validation file {valid_file} does not exist!")
         elif valid_file not in seen_files and training_args.do_eval:
-            valid_raw_data[f"{pair}"] = load_dataset(
+            valid_raw_data[pair] = load_dataset(
                 "json",
                 data_files={"validation": valid_file},
                 cache_dir=model_args.cache_dir,
                 use_auth_token=True if model_args.use_auth_token else None,
                 )
+            new_column = [pair] * len(valid_raw_data[pair]["validation"])
+            valid_raw_data[pair]["validation"] = valid_raw_data[pair]["validation"].add_column("lang_pair", new_column)
         if not os.path.isfile(test_file):
             logger.info(f"Warning: test file {test_file} does not exist!")
         elif test_file not in seen_files and training_args.do_predict:
@@ -547,15 +551,19 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
         inputs = []
         prompts = []
         for ex in examples["translation"]:
-            source_lang, target_lang = list(ex.keys())
+            lang_pair = examples["lang_pair"][0]
+            #source_lang, target_lang = list(ex.keys())
+            source_lang, target_lang = lang_pair.split("-")[0], lang_pair.split("-")[1]
             if f"{source_lang}-{target_lang}" in pairs:
                 prompt = get_prompt(source_lang, target_lang, ex)
                 prompts.append(prompt)
                 inputs.append(prompt + ex[target_lang])
+            """
             if f"{target_lang}-{source_lang}" in pairs:
                 prompt = get_prompt(target_lang, source_lang, ex)
                 prompts.append(prompt)
                 inputs.append(prompt + ex[source_lang])
+            """
         model_inputs = tokenizer(inputs, max_length=data_args.max_source_length + data_args.max_new_tokens - 1, padding=padding, truncation=True, add_special_tokens=True)
         check_add_eos(model_inputs, tokenizer)
         labels = copy.deepcopy(model_inputs)
@@ -700,7 +708,7 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
     
     # Preprocessing the datasets.
     if data_args.mmt_data_path or data_args.mono_data_path:
-        column_names_mmt = ["translation"]
+        column_names_mmt = ["translation", "lang_pair"]
     if data_args.oscar_data_path:
         column_name_oscar = ["id", "text"]
 
@@ -715,7 +723,6 @@ def get_preprocessed_data(train_raw_data, valid_raw_data, test_raw_data, pairs, 
         processed_datasets = []
         if data_args.mmt_data_path:
             for lg_pair, sub_raw_data in train_raw_data.items():
-                print("##########", lg_pair, len(sub_raw_data["train"]))
                 train_dataset = sub_raw_data["train"]
                 if data_args.max_train_samples is not None:
                     max_train_samples = min(len(train_dataset), data_args.max_train_samples)
