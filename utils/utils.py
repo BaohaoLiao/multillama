@@ -441,7 +441,7 @@ def load_model(data_args, model_args, training_args, tokenizer, logger):
             config = LoraConfig(
                 r=model_args.lora_rank,
                 lora_alpha=model_args.lora_rank * 2,
-                target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+                target_modules=["down_proj"], #"q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
                 lora_dropout=0.05,
                 bias="none",
                 task_type="CAUSAL_LM"
