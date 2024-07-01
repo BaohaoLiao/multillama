@@ -281,7 +281,7 @@ def get_key_suffix(tgt_lang, data_args):
     if data_args.use_target_lang_prompt_eval:
         return SUFFIX[tgt_lang]
     else:
-        return f"\n{LANG_TABLE[tgt_lang]}: "
+        return f"\n{LANG_TABLE[tgt_lang]}:"
 
 def get_prompt_few_shot(source_lang, target_lang, ex, shots_eval_dict):
     src_fullname = LANG_TABLE[source_lang]
@@ -293,7 +293,7 @@ def get_prompt_few_shot(source_lang, target_lang, ex, shots_eval_dict):
         shot_src = shot['source']
         shot_tgt = shot['target']
         shot_prompt += f"\n{src_fullname}: " + shot_src + f"\n{tgt_fullname}: " + shot_tgt
-    suffix = f"\n{tgt_fullname}: "
+    suffix = f"\n{tgt_fullname}:"
     prompt = prefix + shot_prompt + f"\n{src_fullname}: " + ex[source_lang] + suffix
     return prompt
 
@@ -306,8 +306,8 @@ def get_prompt(source_lang, target_lang, ex, shots_eval_dict={}, use_target_lang
         prefix = PREFIX[target_lang]
         suffix = SUFFIX[target_lang]
     else:
-        prefix = f"You are an expert Translator. Translate this from {src_fullname} to {tgt_fullname}:\n{src_fullname}: "
-        suffix = f"\n{tgt_fullname}: "
+        prefix = f"Translate this from {src_fullname} to {tgt_fullname}:\n{src_fullname}: "
+        suffix = f"\n{tgt_fullname}:"
     prompt = prefix + ex[source_lang] + suffix
     return prompt
 
