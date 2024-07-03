@@ -1,4 +1,3 @@
-import regex
 from tqdm import tqdm
 import argparse
 
@@ -91,26 +90,6 @@ def load_tokenizer(base_model):
         tokenizer.pad_token_id = 0
     return tokenizer
 
-def finalize_chinese_text(text):
-    # This regex modifies the text by:
-    # 1. Removing spaces between Han characters and digits, digits and Han characters, Han characters and emojis,
-    #    emojis and Han characters, before the first English word, and after the last English word surrounded by Han characters
-    # 2. Removing spaces before Chinese punctuation
-    # 3. Replacing English periods with Chinese periods within the context of Chinese text
-    pattern = (
-        r'(?<!@[\w\d]+)\s+(?=\p{IsHan}|\d)|'
-        r'(?<=\p{IsHan}|\d%)\s+(?!(?<=@\w+)\s)(?=\d|\p{IsHan})|'
-        r'(?<=\p{IsHan})\s+(?=\p{Emoji})|'
-        r'(?<=\p{Emoji})\s+(?=\p{IsHan})|'
-        r'(?<=\p{IsHan})\s+(?=[A-Za-z])|'
-        r'(?<=[A-Za-z])\s+(?=\p{IsHan})|'
-        r'(?<=.)\s+(?=。|，|：|；|？|！|”|“|【|】|》|《)'
-    )
-    cleaned_text = regex.sub(pattern, '', text)
-    # Replace English periods only if surrounded by Chinese characters or at the end of a sentence before Chinese punctuation
-    cleaned_text = regex.sub(r'(?<=\p{IsHan})\.+(?=\p{IsHan}|[。，：；？！]?$)', '。', cleaned_text)
-    return cleaned_text
-
 
 def main(
         base_model: str, 
@@ -124,7 +103,6 @@ def main(
         device="cuda",
         num_beams=5,
     ):
-    print("hello")
     src_lang, tgt_lang = lang_pair.split("-")[0], lang_pair.split("-")[1] 
     file_path = f"{input_dir}/wmttest2024.txt.{lang_pair}.{src_lang}"
     save_path = f"{output_dir}/test-{lang_pair}"
@@ -180,16 +158,16 @@ def main(
         #else:
         tgt_sents.append(pred)
 
+        """
         count += 1
         if count > 50:
             break
+        """
 
-    """
     assert len(src_sents) == len(tgt_sents)
     for i in range(len(src_sents)):
         if tgt_sents[i] == "":
             tgt_sents[i] == src_sents[i]
-    """
 
     with open(save_path, 'w', encoding='utf-8') as file:
         for tgt_sent in tgt_sents:
