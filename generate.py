@@ -172,10 +172,10 @@ def main(
         decoded_preds = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
         pred = clean_outputstring(decoded_preds, suffix, split_idx)
 
-        if (lang_pair == "en-zh") or (lang_pair == "ja-zh"):
-            tgt_sents.append(finalize_chinese_text(pred))
-        else:
-            tgt_sents.append(pred)
+        #if (lang_pair == "en-zh") or (lang_pair == "ja-zh"):
+        #    tgt_sents.append(finalize_chinese_text(pred))
+        #else:
+        tgt_sents.append(pred)
 
         count += 1
         if count > 50:
