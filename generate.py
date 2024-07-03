@@ -63,8 +63,8 @@ def load_model(base_model, peft_model, max_source_length, max_new_tokens):
         torch_dtype="auto",
         low_cpu_mem_usage=True,
         trust_remote_code=True,
-        attn_implementation="flash_attention_2",
-        device_map="cuda:0",
+        #attn_implementation="flash_attention_2",
+        device_map="cuda",
     )
     model.generation_config.max_length = max_source_length + max_new_tokens
     model.generation_config.use_cache = True
@@ -118,7 +118,7 @@ def main(
         length_ratio=2,
         max_source_length=512,
         max_new_tokens=512,
-        device="cuda:0",
+        device="cuda",
         num_beams=5,
     ):
     print("hello")
