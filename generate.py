@@ -121,6 +121,7 @@ def main(
         device="cuda",
         num_beams=5,
     ):
+    print("hello")
     src_lang, tgt_lang = lang_pair.split("-")[0], lang_pair.split("-")[1] 
     file_path = f"{input_dir}/wmttest2024.txt.{lang_pair}.{src_lang}"
     save_path = f"{output_dir}/test-{lang_pair}"
@@ -168,6 +169,15 @@ def main(
             tgt_sents.append(finalize_chinese_text(pred))
         else:
             tgt_sents.append(pred)
+
+    assert len(src_sents) == len(tgt_sents)
+    for i in range(len(src_sents)):
+        if tgt_sents[i] == "":
+            tgt_sents[i] == src_sents[i]
+
+    with open(save_path, 'w', encoding='utf-8') as file:
+        for tgt_sent in tgt_sents:
+            file.write(tgt_sent.strip() + '\n')
 
 
 if __name__ == "__name__":
