@@ -63,7 +63,7 @@ def load_model(base_model, peft_model, max_source_length, max_new_tokens):
         torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
         trust_remote_code=True,
-        #attn_implementation="flash_attention_2",
+        attn_implementation="flash_attention_2",
         device_map="cuda",
     )
     model.generation_config.max_length = max_source_length + max_new_tokens
@@ -173,7 +173,7 @@ def main(
             tgt_sents.append(pred)
 
         count += 1
-        if count > 10:
+        if count > 50:
             break
 
     """
