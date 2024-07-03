@@ -146,7 +146,8 @@ def main(
             truncation=True).input_ids.to(device)
 
         max_new_tokens = min(max_new_tokens, int(input_ids.shape[1] * length_ratio))
-        with torch.no_grad():
+        #with torch.no_grad():
+        with torch.cuda.amp.autocast():
             generated_ids = model.generate(
                 input_ids=input_ids, 
                 num_beams=num_beams, 
