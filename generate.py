@@ -60,7 +60,7 @@ def load_model(base_model, peft_model, max_source_length, max_new_tokens):
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         config=config,
-        torch_dtype="auto",
+        torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
         trust_remote_code=True,
         #attn_implementation="flash_attention_2",
@@ -134,6 +134,7 @@ def main(
     model = load_model(base_model, peft_model, max_source_length, max_new_tokens)
     tokenizer = load_tokenizer(base_model)
 
+    count = 0
     tgt_sents = []
     for src_sent in tqdm(src_sents):
         prompt = get_prompt(src_lang, tgt_lang, src_sent)
@@ -169,6 +170,10 @@ def main(
             tgt_sents.append(finalize_chinese_text(pred))
         else:
             tgt_sents.append(pred)
+
+        count += 1
+        if count > 10:
+            break
 
     assert len(src_sents) == len(tgt_sents)
     for i in range(len(src_sents)):
