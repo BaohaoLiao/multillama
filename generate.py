@@ -159,11 +159,11 @@ def main(
         #else:
         tgt_sents.append(pred)
 
-        """
+
         count += 1
         if count > 50:
             break
-        """
+
     """
     assert len(src_sents) == len(tgt_sents)
     for i in range(len(src_sents)):
