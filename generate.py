@@ -64,6 +64,7 @@ def load_model(base_model, peft_model, max_source_length, max_new_tokens):
         low_cpu_mem_usage=True,
         trust_remote_code=True,
         attn_implementation="flash_attention_2",
+        device_map="cuda",
     )
     model.generation_config.max_length = max_source_length + max_new_tokens
     model.generation_config.use_cache = True
