@@ -49,7 +49,10 @@ def clean_outputstring(output, key_word, split_idx):
         return ""
     
 def get_prompt(src_lang, tgt_lang, src_sent):
-    return f"Translate this from {LANG_TABLE[src_lang]} to {LANG_TABLE[tgt_lang]}:\n{LANG_TABLE[src_lang]}: {src_sent}\n{LANG_TABLE[tgt_lang]}:"
+    prefix = f"Translate this from {LANG_TABLE[src_lang]} to {LANG_TABLE[tgt_lang]}:\n"
+    src_sent = f"{LANG_TABLE[src_lang]}: {src_sent}"
+    suffix = f"\n{LANG_TABLE[tgt_lang]}:"
+    return prefix, src_sent, suffix
 
 def load_model(base_model, peft_model, max_source_length, max_new_tokens):
     config_kwargs = {
@@ -137,19 +140,21 @@ def main(
     count = 0
     tgt_sents = []
     for src_sent in tqdm(src_sents):
-        prompt = get_prompt(src_lang, tgt_lang, src_sent)
-        input_ids = tokenizer(
-            prompt, 
-            return_tensors="pt", 
-            padding=True, 
-            max_length=max_source_length,
-            truncation=True).input_ids.to(device)
-
+        prefix, src_sent, suffix = get_prompt(src_lang, tgt_lang, src_sent)
+        prompt = prefix + src_sent + suffix
+        input_ids = tokenizer(prompt, return_tensors="pt", truncation=True).input_ids
+        if input_ids.shape[1] > max_source_length:
+            src_input_ids = tokenizer(src_sent, return_tensors="pt", truncation=True).input_ids[0]
+            num_deletion = input_ids.shape[1] - max_source_length
+            src_sent = tokenizer.decode(src_input_ids[:-(num_deletion+1)], skip_special_tokens=True)
+            prompt = prefix + src_sent + suffix
+            input_ids = tokenizer(prompt, return_tensors="pt",truncation=True).input_ids
+        
         max_new_tokens = min(max_new_tokens, int(input_ids.shape[1] * length_ratio))
         #with torch.no_grad():
         with torch.cuda.amp.autocast():
             generated_ids = model.generate(
-                input_ids=input_ids, 
+                input_ids=input_ids.to(device), 
                 num_beams=num_beams, 
                 max_new_tokens=max_new_tokens, 
                 do_sample=True, 
