@@ -49,9 +49,9 @@ def clean_outputstring(output, key_word, split_idx):
     
 def get_prompt(src_lang, tgt_lang, src_sent):
     prefix = f"Translate this from {LANG_TABLE[src_lang]} to {LANG_TABLE[tgt_lang]}:\n"
-    src_sent = f"{LANG_TABLE[src_lang]}: {src_sent}"
+    tag_src_sent = f"{LANG_TABLE[src_lang]}: {src_sent}"
     suffix = f"\n{LANG_TABLE[tgt_lang]}:"
-    return prefix, src_sent, suffix
+    return prefix, tag_src_sent, suffix
 
 def load_model(base_model, peft_model, max_source_length, max_new_tokens):
     config_kwargs = {
@@ -118,21 +118,23 @@ def main(
     count = 0
     tgt_sents = []
     for src_sent in tqdm(src_sents):
-        prefix, src_sent, suffix = get_prompt(src_lang, tgt_lang, src_sent)
-        prompt = prefix + src_sent + suffix
-        input_ids = tokenizer(prompt, return_tensors="pt", truncation=True).input_ids
+        prefix, tag_src_sent, suffix = get_prompt(src_lang, tgt_lang, src_sent)
+        prompt = prefix + tag_src_sent + suffix
+        input_ids = tokenizer(prompt, return_tensors="pt", truncation=True).input_ids.to(device)
+        """
         if input_ids.shape[1] > max_source_length:
             src_input_ids = tokenizer(src_sent, return_tensors="pt", truncation=True).input_ids[0]
             num_deletion = input_ids.shape[1] - max_source_length
             src_sent = tokenizer.decode(src_input_ids[:-(num_deletion+1)], skip_special_tokens=True)
             prompt = prefix + src_sent + suffix
             input_ids = tokenizer(prompt, return_tensors="pt",truncation=True).input_ids
+        """
         
         max_new_tokens = min(max_new_tokens, int(input_ids.shape[1] * length_ratio))
         #with torch.no_grad():
         with torch.cuda.amp.autocast():
             generated_ids = model.generate(
-                input_ids=input_ids.to(device), 
+                input_ids=input_ids, 
                 num_beams=num_beams, 
                 max_new_tokens=max_new_tokens, 
                 do_sample=True, 
@@ -141,7 +143,7 @@ def main(
             )
             if max_new_tokens + input_ids.shape[1] == generated_ids.shape[1]:
                 generated_ids = model.generate(
-                    input_ids=input_ids.to(device), 
+                    input_ids=input_ids, 
                     num_beams=1, 
                     max_new_tokens=max_new_tokens,
                     repetition_penalty=1.5,
@@ -161,7 +163,7 @@ def main(
 
 
         count += 1
-        if count > 50:
+        if count > 10:
             break
 
     """
