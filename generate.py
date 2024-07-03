@@ -1,6 +1,6 @@
-import fire
 import regex
 from tqdm import tqdm
+import argparse
 
 import torch
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
@@ -180,5 +180,33 @@ def main(
             file.write(tgt_sent.strip() + '\n')
 
 
+def arg_parse():
+    parser = argparse.ArgumentParser(description="Generation")
+    parser.add_argument("--base_model", type=str)
+    parser.add_argument("--peft_model", type=str)
+    parser.add_argument("--lang_pair", type=str)
+    parser.add_argument("--input_dir", type=str)
+    parser.add_argument("--output_dir", type=str)
+    parser.add_argument("--length_ratio", type="float", default=2)
+    parser.add_argument("--max_source_length", type="int", default=512)
+    parser.add_argument("--max_new_tokens", type="int", default=512)
+    parser.add_argument("--num_beams", type="int", default=5)
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == "__name__":
-    fire.Fire(main)
+    args = arg_parse()
+    print(args)
+    main(
+        args.base_model,
+        args.peft_model,
+        args.lang_pair,
+        args.input_dir,
+        args.output_dir,
+        length_ratio=args.length_ratio,
+        max_source_length=args.max_source_length,
+        max_new_tokens=args.max_new_tokens,
+        num_beams=args.num_beams,
+    )
+    
