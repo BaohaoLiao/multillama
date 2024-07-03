@@ -163,10 +163,13 @@ def main(
             )
             if max_new_tokens + input_ids.shape[1] == generated_ids.shape[1]:
                 generated_ids = model.generate(
-                    input_ids=input_ids, 
+                    input_ids=input_ids.to(device), 
                     num_beams=1, 
                     max_new_tokens=max_new_tokens,
-                    repetition_penalty=1.5
+                    repetition_penalty=1.5,
+                    do_sample=True, 
+                    temperature=0.6, 
+                    top_p=0.9
                 )
 
         decoded_preds = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
