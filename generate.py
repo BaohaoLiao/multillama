@@ -152,6 +152,7 @@ def main(
 
         decoded_preds = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
         pred = clean_outputstring(decoded_preds, suffix, split_idx)
+        print(pred)
 
         #if (lang_pair == "en-zh") or (lang_pair == "ja-zh"):
         #    tgt_sents.append(finalize_chinese_text(pred))
@@ -163,11 +164,12 @@ def main(
         if count > 50:
             break
         """
-
+    """
     assert len(src_sents) == len(tgt_sents)
     for i in range(len(src_sents)):
         if tgt_sents[i] == "":
             tgt_sents[i] == src_sents[i]
+    """
 
     with open(save_path, 'w', encoding='utf-8') as file:
         for tgt_sent in tgt_sents:
