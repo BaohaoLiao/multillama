@@ -60,7 +60,7 @@ def load_model(base_model, peft_model, max_source_length, max_new_tokens):
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         config=config,
-        torch_dtype=torch.float,
+        torch_dtype=torch.bfloat,
         low_cpu_mem_usage=True,
         trust_remote_code=True,
         #attn_implementation="flash_attention_2",
