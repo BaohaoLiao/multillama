@@ -63,7 +63,7 @@ def load_model(base_model, peft_model, max_source_length, max_new_tokens):
         torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
         trust_remote_code=True,
-        #attn_implementation="flash_attention_2",
+        attn_implementation="flash_attention_2",
         device_map="cuda",
     )
     model.generation_config.max_length = max_source_length + max_new_tokens
@@ -175,10 +175,12 @@ def main(
         if count > 10:
             break
 
+    """
     assert len(src_sents) == len(tgt_sents)
     for i in range(len(src_sents)):
         if tgt_sents[i] == "":
             tgt_sents[i] == src_sents[i]
+    """
 
     with open(save_path, 'w', encoding='utf-8') as file:
         for tgt_sent in tgt_sents:
