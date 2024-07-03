@@ -151,9 +151,9 @@ def main(
                 input_ids=input_ids, 
                 num_beams=num_beams, 
                 max_new_tokens=max_new_tokens, 
-                #do_sample=True, 
-                #temperature=0.6, 
-                #top_p=0.9
+                do_sample=True, 
+                temperature=0.6, 
+                top_p=0.9
             )
             if max_new_tokens + input_ids.shape[1] == generated_ids.shape[1]:
                 generated_ids = model.generate(
