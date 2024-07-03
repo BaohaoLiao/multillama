@@ -195,7 +195,7 @@ def arg_parse():
     return args
 
 
-if __name__ == "__name__":
+if __name__ == "__main__":
     args = arg_parse()
     print(args)
     main(
