@@ -187,10 +187,10 @@ def arg_parse():
     parser.add_argument("--lang_pair", type=str)
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
-    parser.add_argument("--length_ratio", type="float", default=2)
-    parser.add_argument("--max_source_length", type="int", default=512)
-    parser.add_argument("--max_new_tokens", type="int", default=512)
-    parser.add_argument("--num_beams", type="int", default=5)
+    parser.add_argument("--length_ratio", type=float, default=2)
+    parser.add_argument("--max_source_length", type=int, default=512)
+    parser.add_argument("--max_new_tokens", type=int, default=512)
+    parser.add_argument("--num_beams", type=int, default=5)
     args = parser.parse_args()
     return args
 
