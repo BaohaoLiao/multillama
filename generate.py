@@ -91,29 +91,18 @@ def load_tokenizer(base_model):
     return tokenizer
 
 
-def main(
-        base_model: str, 
-        peft_model: str, 
-        lang_pair: str,
-        input_dir: str,
-        output_dir: str,
-        length_ratio=2,
-        max_source_length=512,
-        max_new_tokens=512,
-        device="cuda",
-        num_beams=5,
-    ):
-    src_lang, tgt_lang = lang_pair.split("-")[0], lang_pair.split("-")[1] 
-    file_path = f"{input_dir}/wmttest2024.txt.{lang_pair}.{src_lang}"
-    save_path = f"{output_dir}/test-{lang_pair}"
+def main(args):
+    src_lang, tgt_lang = args.lang_pair.split("-")[0], args.lang_pair.split("-")[1] 
+    file_path = f"{args.input_dir}/wmttest2024.txt.{args.lang_pair}.{src_lang}"
+    save_path = f"{args.output_dir}/test-{args.lang_pair}"
     suffix = get_key_suffix(tgt_lang)
     split_idx = 1
 
     with open(file_path, 'r', encoding="utf-8") as file:
         src_sents = [line.strip() for line in file]
 
-    model = load_model(base_model, peft_model, max_source_length, max_new_tokens)
-    tokenizer = load_tokenizer(base_model)
+    model = load_model(args.base_model, args.peft_model, args.max_source_length, max_new_tokens)
+    tokenizer = load_tokenizer(args.base_model)
 
     count = 0
     tgt_sents = []
@@ -121,20 +110,19 @@ def main(
         tag_prefix, tag_src_sent, tag_suffix = get_prompt(src_lang, tgt_lang, src_sent)
         prompt = tag_prefix + tag_src_sent + tag_suffix
         input_ids = tokenizer(prompt, return_tensors="pt", padding=True, max_length=args.max_source_length, truncation=True).input_ids
-        if input_ids.shape[1] == max_source_length:
+        if input_ids.shape[1] <= args.max_source_length:
             tag_src_input_ids = tokenizer(tag_src_sent, return_tensors="pt").input_ids[0]
-            num_deletion = input_ids.shape[1] - max_source_length
+            num_deletion = input_ids.shape[1] - args.max_source_length
             tag_src_sent = tokenizer.decode(tag_src_input_ids[:-(num_deletion+1)], skip_special_tokens=True)
             prompt = tag_prefix + tag_src_sent + tag_suffix
             input_ids = tokenizer(prompt, return_tensors="pt").input_ids
         
-        print(max_new_tokens, int(input_ids.shape[1] * length_ratio))
-        max_new_tokens = min(max_new_tokens, int(input_ids.shape[1] * length_ratio))
+        max_new_tokens = min(args.max_new_tokens, int(input_ids.shape[1] * args.length_ratio))
         #with torch.no_grad():
         with torch.cuda.amp.autocast():
             generated_ids = model.generate(
-                input_ids=input_ids.to(device), 
-                num_beams=num_beams, 
+                input_ids=input_ids.to(args.device), 
+                num_beams=args.num_beams, 
                 max_new_tokens=max_new_tokens, 
                 do_sample=True, 
                 temperature=0.6, 
@@ -142,7 +130,7 @@ def main(
             )
             if max_new_tokens + input_ids.shape[1] == generated_ids.shape[1]:
                 generated_ids = model.generate(
-                    input_ids=input_ids.to(device), 
+                    input_ids=input_ids.to(args.device), 
                     num_beams=1, 
                     max_new_tokens=max_new_tokens,
                     repetition_penalty=1.5,
@@ -188,6 +176,7 @@ def arg_parse():
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
     parser.add_argument("--length_ratio", type=float, default=2)
+    parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--max_source_length", type=int, default=512)
     parser.add_argument("--max_new_tokens", type=int, default=512)
     parser.add_argument("--num_beams", type=int, default=5)
@@ -198,15 +187,5 @@ def arg_parse():
 if __name__ == "__main__":
     args = arg_parse()
     print(args)
-    main(
-        args.base_model,
-        args.peft_model,
-        args.lang_pair,
-        args.input_dir,
-        args.output_dir,
-        length_ratio=args.length_ratio,
-        max_source_length=args.max_source_length,
-        max_new_tokens=args.max_new_tokens,
-        num_beams=args.num_beams,
-    )
+    main(args)
     
