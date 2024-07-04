@@ -128,6 +128,7 @@ def main(
             prompt = tag_prefix + tag_src_sent + tag_suffix
             input_ids = tokenizer(prompt, return_tensors="pt").input_ids
         
+        print(max_new_tokens, int(input_ids.shape[1] * length_ratio))
         max_new_tokens = min(max_new_tokens, int(input_ids.shape[1] * length_ratio))
         #with torch.no_grad():
         with torch.cuda.amp.autocast():
