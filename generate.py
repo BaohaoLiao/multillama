@@ -101,7 +101,7 @@ def main(args):
     with open(file_path, 'r', encoding="utf-8") as file:
         src_sents = [line.strip() for line in file]
 
-    model = load_model(args.base_model, args.peft_model, args.max_source_length, max_new_tokens)
+    model = load_model(args.base_model, args.peft_model, args.max_source_length, args.max_new_tokens)
     tokenizer = load_tokenizer(args.base_model)
 
     count = 0
