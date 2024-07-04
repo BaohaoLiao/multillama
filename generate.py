@@ -120,13 +120,13 @@ def main(
     for src_sent in tqdm(src_sents):
         tag_prefix, tag_src_sent, tag_suffix = get_prompt(src_lang, tgt_lang, src_sent)
         prompt = tag_prefix + tag_src_sent + tag_suffix
-        input_ids = tokenizer(prompt, return_tensors="pt", truncation=True).input_ids
-        if input_ids.shape[1] > max_source_length:
-            tag_src_input_ids = tokenizer(tag_src_sent, return_tensors="pt", truncation=True).input_ids[0]
+        input_ids = tokenizer(prompt, return_tensors="pt", padding=True, max_length=args.max_source_length, truncation=True).input_ids
+        if input_ids.shape[1] == max_source_length:
+            tag_src_input_ids = tokenizer(tag_src_sent, return_tensors="pt").input_ids[0]
             num_deletion = input_ids.shape[1] - max_source_length
             tag_src_sent = tokenizer.decode(tag_src_input_ids[:-(num_deletion+1)], skip_special_tokens=True)
             prompt = tag_prefix + tag_src_sent + tag_suffix
-            input_ids = tokenizer(prompt, return_tensors="pt",truncation=True).input_ids
+            input_ids = tokenizer(prompt, return_tensors="pt").input_ids
         
         max_new_tokens = min(max_new_tokens, int(input_ids.shape[1] * length_ratio))
         #with torch.no_grad():
@@ -152,6 +152,10 @@ def main(
 
         decoded_preds = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
         pred = clean_outputstring(decoded_preds, suffix, split_idx)
+        print("------------------")
+        print(prompt)
+        print(decoded_preds)
+        print(pred)
 
         #if (lang_pair == "en-zh") or (lang_pair == "ja-zh"):
         #    tgt_sents.append(finalize_chinese_text(pred))
