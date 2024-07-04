@@ -153,7 +153,7 @@ def main(
         decoded_preds = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
         pred = clean_outputstring(decoded_preds, suffix, split_idx)
         print("------------------")
-        print(prompt)
+        print(max_new_tokens, generated_ids.shape[1] - input_ids.shape[1])
         print(decoded_preds)
         print(pred)
 
